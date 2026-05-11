@@ -182,7 +182,7 @@ After installing, open a new PowerShell window and check:
 
 function Ensure-CodexSourceCache {
     if (Test-Path (Join-Path $SourceCache ".git")) {
-        Invoke-CodexKoNative "git" @("-C", $SourceCache, "fetch", "--tags", "--prune") $Root
+        Invoke-CodexKoNative "git" @("-C", $SourceCache, "fetch", "--tags", "--force", "--prune") $Root
         return
     }
     $parent = Split-Path -Parent $SourceCache
@@ -391,20 +391,19 @@ function Patch-SlashDispatchSource {
 
     $helpMethod = New-CodexKoHelpMethod
     $text = Replace-Once $text "    pub(super) fn dispatch_command(&mut self, cmd: SlashCommand) {`n" ($helpMethod + "    pub(super) fn dispatch_command(&mut self, cmd: SlashCommand) {`n") "insert /help-ko output method"
-    $modelArm = @"
-            SlashCommand::Model => {
-                self.open_model_popup();
-            }
-"@
-    $helpArm = @"
-            SlashCommand::Model => {
-                self.open_model_popup();
-            }
-            SlashCommand::HelpKo => {
-                self.add_codex_ko_help_output();
-            }
-"@
-    $text = Replace-Once $text $modelArm $helpArm "dispatch /help-ko"
+    $modelArmPattern = "(?m)^            SlashCommand::Model => \{`n                self\.open_model_popup\(\);`n            \}"
+    if (-not [regex]::IsMatch($text, $modelArmPattern)) {
+        throw "Patch marker not found: dispatch /help-ko"
+    }
+    $helpArm = (@(
+        "            SlashCommand::Model => {",
+        "                self.open_model_popup();",
+        "            }",
+        "            SlashCommand::HelpKo => {",
+        "                self.add_codex_ko_help_output();",
+        "            }"
+    ) -join "`n")
+    $text = [regex]::Replace($text, $modelArmPattern, $helpArm, 1)
     if ($text.Contains("            SlashCommand::Fast`n            | SlashCommand::Ide")) {
         $text = Replace-Once $text "            SlashCommand::Fast`n            | SlashCommand::Ide" "            SlashCommand::HelpKo`n            | SlashCommand::Fast`n            | SlashCommand::Ide" "queued drain /help-ko"
     }
