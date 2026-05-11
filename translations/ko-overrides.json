@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "kind": "selection_description",
+      "source_id": "Memories",
+      "original_text": "Allow Codex to create new memories from conversations and bring relevant memories into new conversations.",
+      "ko_text": "대화에서 배운 내용을 메모리로 저장하고, 새 대화에서 관련 기억을 다시 참고하게 합니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "External migration",
+      "original_text": "Show a startup prompt when Codex detects migratable external agent config for this machine or project.",
+      "ko_text": "이 PC나 프로젝트에 옮겨올 수 있는 외부 에이전트 설정이 있으면 시작할 때 안내를 보여줍니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "Goals",
+      "original_text": "Set a persistent goal Codex can continue over time",
+      "ko_text": "Codex가 여러 대화나 긴 작업 동안 계속 따라갈 목표를 저장합니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "Prevent sleep while running",
+      "original_text": "Keep your computer awake while Codex is running a thread.",
+      "ko_text": "Codex가 작업을 실행하는 동안 PC가 절전 모드로 들어가지 않게 합니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "Terminal resize reflow",
+      "original_text": "Rebuild Codex-owned transcript scrollback when the terminal width changes.",
+      "ko_text": "터미널 폭이 바뀌면 Codex 대화 기록의 줄바꿈을 새 폭에 맞게 다시 정리합니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "gpt-5.5",
+      "original_text": "Frontier model for complex coding, research, and real-world work.",
+      "ko_text": "복잡한 코딩, 조사, 실제 프로젝트 작업에 맞춘 최상위 모델입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "gpt-5.4",
+      "original_text": "Strong model for everyday coding.",
+      "ko_text": "일상적인 코딩 작업에 안정적으로 쓰기 좋은 강한 모델입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "gpt-5.4-mini",
+      "original_text": "Small, fast, and cost-efficient model for simpler coding tasks.",
+      "ko_text": "간단한 코딩 작업에 적합한 작고 빠르며 비용 효율적인 모델입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "gpt-5.3-codex",
+      "original_text": "Coding-optimized model.",
+      "ko_text": "코딩 작업에 맞게 최적화된 모델입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "gpt-5.3-codex-spark",
+      "original_text": "Ultra-fast coding model.",
+      "ko_text": "빠른 응답이 중요한 코딩 작업용 초고속 모델입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "gpt-5.2",
+      "original_text": "Optimized for professional work and long-running agents.",
+      "ko_text": "전문적인 작업과 오래 실행되는 에이전트 작업에 맞게 최적화된 모델입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "Implement plan",
+      "original_text": "Switch to Default and start coding.",
+      "ko_text": "계획 모드를 끝내고 실제 코드 수정 작업을 시작합니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "Clear context and implement",
+      "original_text": "Fresh thread. Context: 5% used.",
+      "ko_text": "새 대화로 시작합니다. 현재 컨텍스트 사용량은 5%입니다."
+    },
+    {
+      "kind": "selection_description",
+      "source_id": "Stay in Plan mode",
+      "original_text": "Continue planning with the model.",
+      "ko_text": "구현하지 않고 모델과 계획을 계속 다듬습니다."
+    },
+    {
+      "kind": "*",
+      "source_id": "read-only sandbox",
+      "original_text": "Read files without making changes.",
+      "ko_text": "파일을 읽기만 하고 변경하지 않습니다."
+    },
+    {
+      "kind": "*",
+      "source_id": "workspace-write sandbox",
+      "original_text": "Allow edits inside the current workspace.",
+      "ko_text": "현재 작업 폴더 안의 파일 수정만 허용합니다."
+    },
+    {
+      "kind": "*",
+      "source_id": "danger-full-access sandbox",
+      "original_text": "Allow all filesystem access.",
+      "ko_text": "파일 시스템 접근을 제한하지 않습니다. 신뢰하는 작업에서만 사용하세요."
+    },
+    {
+      "kind": "*",
+      "source_id": "approval never",
+      "original_text": "Never ask for approval.",
+      "ko_text": "명령 실행 전에 승인 요청을 하지 않습니다."
+    },
+    {
+      "kind": "*",
+      "source_id": "approval on-request",
+      "original_text": "Ask for approval when needed.",
+      "ko_text": "필요한 경우에만 사용자 승인을 요청합니다."
+    },
+    {
+      "kind": "*",
+      "source_id": "approval on-failure",
+      "original_text": "Ask for approval after a command fails.",
+      "ko_text": "명령이 실패했을 때만 더 높은 권한으로 다시 실행할지 묻습니다."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+# Local build outputs
+/bin/*.exe
+/bin/*.exe.*
+/bin/*.next
+/bin/*.previous
+/bin/*.tmp
+/dist/
+/release/
+/artifacts/
+*.zip
+*.sha256
+
+# Codex source cache and temporary worktrees
+/source/
+/work/
+
+# Local backups and logs
+/backups/
+/logs/
+
+# Local runtime state
+/state.json
+/translations/dynamic-cache.json
+/translations/dynamic-status.json
+/translations/dynamic-alert.json
+/translations/dynamic-translate.lock
+/translations/pending/
+
+# Temporary files
+*.tmp
+*.bak
+*.bak-*
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "terms": {
+    "agent": "에이전트",
+    "approval": "승인",
+    "auth": "인증",
+    "cache": "캐시",
+    "connector": "앱/커넥터",
+    "context": "컨텍스트",
+    "diff": "변경 내역",
+    "ephemeral": "임시",
+    "MCP": "MCP",
+    "permission": "권한",
+    "plugin": "플러그인",
+    "reasoning effort": "reasoning effort",
+    "sandbox": "샌드박스",
+    "skill": "스킬",
+    "thread": "스레드",
+    "tool": "도구",
+    "watcher": "watcher",
+    "workspace": "작업 폴더"
+  }
+}

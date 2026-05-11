@@ -1,0 +1,125 @@
+name: Build Codex Korean Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      codex_version:
+        description: "Codex CLI version to build, for example 0.130.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows x64 release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Git and Rust
+        shell: pwsh
+        run: |
+          git config --global core.longpaths true
+          rustup default stable
+          rustc --version
+          cargo --version
+
+      - name: Cache Cargo data
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: windows-cargo-${{ inputs.codex_version }}-${{ hashFiles('patches/**', 'translations/**', 'scripts/update-codex-ko.ps1') }}
+          restore-keys: |
+            windows-cargo-${{ inputs.codex_version }}-
+            windows-cargo-
+
+      - name: Build Korean Codex
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.codex_version }}".Trim().TrimStart("v")
+          .\scripts\update-codex-ko.ps1 -Version $version -SkipMetadataSync
+
+      - name: Package release asset
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = "${{ inputs.codex_version }}".Trim().TrimStart("v")
+          $asset = "codex-ko-windows-x64-$version.zip"
+          $packageDir = Join-Path $PWD "dist\package"
+          $distDir = Join-Path $PWD "dist"
+          New-Item -ItemType Directory -Force -Path $packageDir, $distDir | Out-Null
+
+          $exe = Join-Path $PWD "bin\codex.exe"
+          if (-not (Test-Path $exe)) {
+            throw "Built codex.exe was not found at $exe"
+          }
+
+          $statePath = Join-Path $PWD "state.json"
+          $sourceRef = "rust-v$version"
+          if (Test-Path $statePath) {
+            $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+            if ($state.sourceRef) {
+              $sourceRef = [string]$state.sourceRef
+            }
+          }
+
+          Copy-Item -LiteralPath $exe -Destination (Join-Path $packageDir "codex.exe") -Force
+          Set-Content -LiteralPath (Join-Path $packageDir "SOURCE_REF.txt") -Value ($sourceRef + "`n") -Encoding UTF8
+
+          $versionInfo = [ordered]@{
+            codexVersion = $version
+            sourceRef = $sourceRef
+            target = "windows-x64"
+            repository = $env:GITHUB_REPOSITORY
+            runId = $env:GITHUB_RUN_ID
+            builtAt = (Get-Date).ToUniversalTime().ToString("o")
+            unofficial = $true
+            note = "Unofficial Korean UI build of OpenAI Codex."
+          }
+          Set-Content -LiteralPath (Join-Path $packageDir "VERSION.json") -Value (($versionInfo | ConvertTo-Json -Depth 8) + "`n") -Encoding UTF8
+
+          $exeHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $packageDir "codex.exe")).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath (Join-Path $packageDir "SHA256SUMS.txt") -Value "$exeHash  codex.exe`n" -Encoding ASCII
+
+          $zipPath = Join-Path $distDir $asset
+          Compress-Archive -Path (Join-Path $packageDir "*") -DestinationPath $zipPath -Force
+          $zipHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $zipPath).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath "$zipPath.sha256" -Value "$zipHash  $asset`n" -Encoding ASCII
+
+          "CODEX_KO_ASSET=$asset" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "CODEX_KO_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Create or update GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = $env:CODEX_KO_VERSION
+          $asset = $env:CODEX_KO_ASSET
+          $tag = "codex-ko-v$version"
+          $zipPath = "dist\$asset"
+          $shaPath = "$zipPath.sha256"
+          $notes = @"
+          Unofficial Korean UI build of OpenAI Codex CLI $version.
+
+          This release contains a Windows x64 codex.exe built from OpenAI Codex source with the codex-ko Korean UI patch applied.
+
+          Assets:
+          - $asset
+          - $asset.sha256
+          "@
+
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $tag $zipPath $shaPath --clobber
+          }
+          else {
+            gh release create $tag $zipPath $shaPath --title "Codex Korean UI $version" --notes $notes
+          }
