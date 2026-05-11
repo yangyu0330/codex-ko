@@ -441,29 +441,29 @@ function Patch-CodexKoDynamicTranslationSource {
 
     $selectionPath = Join-Path $SourceRoot "codex-rs\tui\src\bottom_pane\selection_popup_common.rs"
     $selectionText = [System.IO.File]::ReadAllText($selectionPath) -replace "`r`n", "`n"
-    $selectionOld = @'
-    let combined_description = match (&row.description, &row.disabled_reason) {
-        (Some(desc), Some(reason)) => Some(format!("{desc} (disabled: {reason})")),
-        (Some(desc), None) => Some(desc.clone()),
-        (None, Some(reason)) => Some(format!("disabled: {reason}")),
-        (None, None) => None,
-    };
-'@
-    $selectionNew = @'
-    let combined_description = match (&row.description, &row.disabled_reason) {
-        (Some(desc), Some(reason)) => Some(format!("{desc} (disabled: {reason})")),
-        (Some(desc), None) => Some(desc.clone()),
-        (None, Some(reason)) => Some(format!("disabled: {reason}")),
-        (None, None) => None,
-    };
-    let combined_description = combined_description.as_ref().map(|description| {
-        crate::codex_ko_translate::translate_for_display(
-            "selection_description",
-            &row.name,
-            description,
-        )
-    });
-'@
+    $selectionOld = (@(
+        "    let combined_description = match (&row.description, &row.disabled_reason) {",
+        '        (Some(desc), Some(reason)) => Some(format!("{desc} (disabled: {reason})")),',
+        "        (Some(desc), None) => Some(desc.clone()),",
+        '        (None, Some(reason)) => Some(format!("disabled: {reason}")),',
+        "        (None, None) => None,",
+        "    };"
+    ) -join "`n")
+    $selectionNew = (@(
+        "    let combined_description = match (&row.description, &row.disabled_reason) {",
+        '        (Some(desc), Some(reason)) => Some(format!("{desc} (disabled: {reason})")),',
+        "        (Some(desc), None) => Some(desc.clone()),",
+        '        (None, Some(reason)) => Some(format!("disabled: {reason}")),',
+        "        (None, None) => None,",
+        "    };",
+        "    let combined_description = combined_description.as_ref().map(|description| {",
+        "        crate::codex_ko_translate::translate_for_display(",
+        '            "selection_description",',
+        "            &row.name,",
+        "            description,",
+        "        )",
+        "    });"
+    ) -join "`n")
     if (-not $selectionText.Contains("codex_ko_translate::translate_for_display")) {
         $selectionText = Replace-Once $selectionText $selectionOld $selectionNew "translate selection popup descriptions"
         Write-CodexKoUtf8NoBom $selectionPath $selectionText
@@ -471,60 +471,60 @@ function Patch-CodexKoDynamicTranslationSource {
 
     $historyPath = Join-Path $SourceRoot "codex-rs\tui\src\history_cell.rs"
     $historyText = [System.IO.File]::ReadAllText($historyPath) -replace "`r`n", "`n"
-    $historyOld = @'
-        let mut names = status
-            .map(|status| status.tools.keys().cloned().collect::<Vec<_>>())
-            .unwrap_or_default();
-        names.sort();
-        if names.is_empty() {
-            lines.push("    • Tools: (none)".into());
-        } else {
-            lines.push(vec!["    • Tools: ".into(), names.join(", ").into()].into());
-        }
-'@
-    $historyNew = @'
-        let mut tool_entries = status
-            .map(|status| status.tools.iter().collect::<Vec<_>>())
-            .unwrap_or_default();
-        tool_entries.sort_by(|(left, _), (right, _)| left.cmp(right));
-        let names = tool_entries
-            .iter()
-            .map(|(name, _)| (*name).clone())
-            .collect::<Vec<_>>();
-        if tool_entries.is_empty() {
-            lines.push("    • Tools: (none)".into());
-        } else if matches!(detail, McpServerStatusDetail::Full) {
-            lines.push("    • Tools:".into());
-            for (name, tool) in tool_entries {
-                let source_id = format!("{server}.{name}");
-                if let Some(description) = tool
-                    .description
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|description| !description.is_empty())
-                {
-                    let description = crate::codex_ko_translate::translate_for_display(
-                        "mcp_tool_description",
-                        &source_id,
-                        description,
-                    );
-                    lines.push(
-                        vec![
-                            "      - ".into(),
-                            name.clone().into(),
-                            ": ".into(),
-                            description.dim(),
-                        ]
-                        .into(),
-                    );
-                } else {
-                    lines.push(vec!["      - ".into(), name.clone().into()].into());
-                }
-            }
-        } else {
-            lines.push(vec!["    • Tools: ".into(), names.join(", ").into()].into());
-        }
-'@
+    $historyOld = (@(
+        "        let mut names = status",
+        "            .map(|status| status.tools.keys().cloned().collect::<Vec<_>>())",
+        "            .unwrap_or_default();",
+        "        names.sort();",
+        "        if names.is_empty() {",
+        '            lines.push("    • Tools: (none)".into());',
+        "        } else {",
+        '            lines.push(vec!["    • Tools: ".into(), names.join(", ").into()].into());',
+        "        }"
+    ) -join "`n")
+    $historyNew = (@(
+        "        let mut tool_entries = status",
+        "            .map(|status| status.tools.iter().collect::<Vec<_>>())",
+        "            .unwrap_or_default();",
+        "        tool_entries.sort_by(|(left, _), (right, _)| left.cmp(right));",
+        "        let names = tool_entries",
+        "            .iter()",
+        "            .map(|(name, _)| (*name).clone())",
+        "            .collect::<Vec<_>>();",
+        "        if tool_entries.is_empty() {",
+        '            lines.push("    • Tools: (none)".into());',
+        "        } else if matches!(detail, McpServerStatusDetail::Full) {",
+        '            lines.push("    • Tools:".into());',
+        "            for (name, tool) in tool_entries {",
+        '                let source_id = format!("{server}.{name}");',
+        "                if let Some(description) = tool",
+        "                    .description",
+        "                    .as_deref()",
+        "                    .map(str::trim)",
+        "                    .filter(|description| !description.is_empty())",
+        "                {",
+        "                    let description = crate::codex_ko_translate::translate_for_display(",
+        '                        "mcp_tool_description",',
+        "                        &source_id,",
+        "                        description,",
+        "                    );",
+        "                    lines.push(",
+        "                        vec![",
+        '                            "      - ".into(),',
+        "                            name.clone().into(),",
+        '                            ": ".into(),',
+        "                            description.dim(),",
+        "                        ]",
+        "                        .into(),",
+        "                    );",
+        "                } else {",
+        '                    lines.push(vec!["      - ".into(), name.clone().into()].into());',
+        "                }",
+        "            }",
+        "        } else {",
+        '            lines.push(vec!["    • Tools: ".into(), names.join(", ").into()].into());',
+        "        }"
+    ) -join "`n")
     if (-not $historyText.Contains('"mcp_tool_description"')) {
         $historyText = Replace-Once $historyText $historyOld $historyNew "render and translate MCP tool descriptions"
         Write-CodexKoUtf8NoBom $historyPath $historyText
