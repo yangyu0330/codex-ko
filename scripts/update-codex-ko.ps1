@@ -109,9 +109,17 @@ function Install-CodexKoBuiltBinary {
 }
 
 function Get-InstalledCodexVersion {
-    $output = (& codex --version 2>$null) -join "`n"
-    if ($output -match '(\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?)') {
-        return $Matches[1]
+    $codexCommand = Get-Command codex -ErrorAction SilentlyContinue
+    if (-not $codexCommand) {
+        return ""
+    }
+    try {
+        $output = (& $codexCommand.Source --version 2>$null) -join "`n"
+        if ($output -match '(\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?)') {
+            return $Matches[1]
+        }
+    }
+    catch {
     }
     return ""
 }
